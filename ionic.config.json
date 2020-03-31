@@ -1,0 +1,7 @@
+{
+  "name": "webui",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "ionic-angular"
+}

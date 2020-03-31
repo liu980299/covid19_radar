@@ -1,0 +1,55 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>
+      COVID-19
+    </ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <div *ngIf="err" [style.color]="'red'">{{err}}</div>
+  <div *ngIf="id"><h4>Surrounding Risk</h4><h4 *ngIf="env_risk" [style.color]="env_risk.color">{{env_risk.risk}}%</h4>
+  <p *ngIf="!env_risk" [style.background-color]="'orange'">No risk detected! please make sure your phone not in bag or pocket and it would prevent the detection</p>
+  <ngx-spinner
+  bdColor="rgba(51,51,51,0.8)"
+  size="medium"
+  color="#fff"
+  type="ball-scale-multiple"
+  [loadingText] = "'Detecting...'"
+  >
+</ngx-spinner>
+</div>
+  <div *ngIf="form">
+    <h4 *ngIf="form.description">{{form.description}}</h4>    
+      <json-schema-form
+      [schema]="form.schema"
+      [layout]="form.layout"
+      [(data)]="form.data"
+      [options]="options"
+      [framework]="'material-design'"
+      (onSubmit)="submit(event)"
+>
+      </json-schema-form>
+  </div>
+  <button ion-button color="primary" (click)="setProfile()" *ngIf="risk && !form">Change Health Condiction</button>
+  <ion-card *ngIf="risk" [style.background-color]="risk.color">
+    <ion-card-header>
+      <ion-card-title>{{risk.title}}</ion-card-title>      
+      
+    </ion-card-header>
+    <ion-item>Your infected Risk is {{risk.value}}%</ion-item>
+    <ion-item *ngFor="let item of risk.policy">
+      {{item}}
+    </ion-item>
+  </ion-card>
+  
+  <ion-card *ngIf="id" >  
+  <ion-card-header>
+      <ion-card-title>Contacts</ion-card-title>            
+    </ion-card-header>
+
+        <ion-item>Today: contacted {{getContacts()}} persons</ion-item>
+        <ion-item>Today: visited {{getPlaces()}} places</ion-item>              
+    </ion-card>
+  
+</ion-content>
