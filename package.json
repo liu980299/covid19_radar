@@ -42,9 +42,7 @@
     "device": "0.3.10",
     "ionic-angular": "3.9.9",
     "ionicons": "3.0.0",
-    "me.xiang.cueaudio.plugin": "file:../cueaudio",
     "ngx-spinner": "^2.0.0",
-    "org.nypr.cordova.sleeptimerplugin": "file:../cordova-plugin-sleeptimer",
     "rxjs": "5.5.11",
     "sw-toolbox": "3.6.0",
     "zone.js": "0.8.29"
@@ -80,8 +78,6 @@
         "EVENTBUS_VERSION": "3.0.0"
       },
       "cordova-plugin-geolocation": {},
-      "org.nypr.cordova.sleeptimerplugin": {},
-      "me.xiang.cueaudio.plugin": {}
     },
     "platforms": [
       "android"
@@ -89,17 +85,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wnyc/cordova-plugin-sleeptimer.git"
+    "url": "git+https://github.com/liu980299/covid19_radar.git"
   },
   "keywords": [
-    "sleep",
-    "timer",
+    "covid-19",
+    "radar",
     "ecosystem:cordova",
     "cordova-android",
     "cordova-ios"
   ],
   "license": "Apache 2.0",
   "bugs": {
-    "url": "https://github.com/wnyc/cordova-plugin-sleeptimer/issues"
+    "url": "https://github.com/liu980299/covid19_radar/issues"
   }
 }
