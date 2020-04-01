@@ -34,7 +34,7 @@ export class HomePage {
   phone: string;
   started : boolean = false;
   contacts : any;
-  form : any;
+  form : {"name":"add_profile","description":"Add a new profile","url":"add_profile","form":{"layout":[{"key":"phone"}],"schema":{"type":"object","properties":{"phone":{"type":"string"}}}},"data":{}};
   options : {"loadExternalAssets":true};
   url:string;
   err:any;
@@ -56,7 +56,9 @@ export class HomePage {
     this.contacts[this.getDate()] = {};
     platform.ready().then(() => {
       if (!this.id){
-        this.fetch(this.postAction.bind(this),"contacts/forms/add_profile/","GET",null);        
+        if (!this.form){
+          this.fetch(this.postAction.bind(this),"contacts/forms/add_profile/","GET",null);        
+        }        
       }        
       this.tick$.subscribe(function(){
         if (this.id){
