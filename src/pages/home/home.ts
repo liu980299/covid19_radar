@@ -380,7 +380,8 @@ export class HomePage {
       cb(data);
     };
     req.onerror = function(error){
-      console.log("error : " + error);
+      console.log(error);
+      this.err = "Connection issue, please retry!"
     }.bind(this);
     req.setRequestHeader("Content-Type", "application/json");
     if (method=='POST'){
