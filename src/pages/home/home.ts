@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component,ViewChild,ElementRef } from '@angular/core';
 import { NavController ,NavParams, Platform} from 'ionic-angular';
 import { Observable} from 'rxjs';
 import { ObserveOnMessage } from 'rxjs/operators/observeOn';
@@ -25,17 +25,19 @@ export class HomePage {
   id : number;
   mobile: string;
   code : any;
+  verify:any;
   app : any;
   test : string;
-  tick$ = Observable.interval(5000);
+  tick$ = Observable.interval(1000);  
+  subscription : any;
   timeout : 36;
   life : 0;
   update: 0;
   phone: string;
   started : boolean = false;
   contacts : any;
-  form : {"name":"add_profile","description":"Add a new profile","url":"add_profile","form":{"layout":[{"key":"phone"}],"schema":{"type":"object","properties":{"phone":{"type":"string"}}}},"data":{}};
-  options : {"loadExternalAssets":true};
+  form = {"layout":[{"key":"phone","type":"tel"}],"schema":{"type":"object","properties":{"phone":{"type":"string"}}},"data":{},"verify":true};
+  options = {"loadExternalAssets":false,addSubmit:false};
   url:string;
   err:any;
   places:{};
@@ -47,12 +49,17 @@ export class HomePage {
   mode : boolean = true;
   seconds : number = 0;
   last_contact =[];
+  doc : any;
+  @ViewChild('iframe') iframe: ElementRef;
+  messages = {};
+  message_id = 0;
 
   constructor(public navCtrl: NavController,public navParams: NavParams, public alertController: AlertController, private platform: Platform, private file:File,
     private spinner : NgxSpinnerService) {
     this.app = navParams.data.app;        
     this.app.child = this;
     this.contacts = {};
+    this.verify={status:false,title:"Send Code",secs:0}
     this.contacts[this.getDate()] = {};
     platform.ready().then(() => {
       if (!this.id){
@@ -76,8 +83,30 @@ export class HomePage {
       //   cordova.plugins.cueaudio.input("test", this.listenEvent,this.error);       
        }.bind(this));    
     });    
+    window.onmessage = this.dispatch.bind(this);
   }
 
+  dispatch(event){
+    var data = event.data;
+    if (data.message_id && this.messages[data.message_id] && data.data){
+      const jsonData=JSON.parse(data.data,function(key,value){
+        if (value && (typeof value === 'string')){
+          if (value.indexOf("function") === 0) {
+            // we can only pass a function as string in JSON ==> doing a real function
+            var jsFunc = new Function('return ' + value)();
+            return jsFunc;
+          }
+          if (value.indexOf("$this") >=0){
+            return parent;
+          }
+        }
+        return value;
+      }
+      ); 
+      this.messages[data.message_id](jsonData);
+    }
+  }
+ 
   getDate(){
     let date = new Date();
     var days = date.getDate().toString();
@@ -98,12 +127,38 @@ export class HomePage {
     await alert.present();
   }
 
+  //reuse the framework to send the code to the user for verifying the phone
+  sendCode(){    
+    if (!this.verify){
+      this.verify = {secs:0};
+    }
+    this.verify.status = true;
+    this.subscription = this.tick$.subscribe(function(){ 
+      this.verify.secs++;
+      this.verify.title = "Send Code (" + (60 - this.verify.secs) + ")";      
+      if (this.verify.secs >= 60){
+        this.verify.status=false;
+        this.verify.secs = 0;
+        this.verify.title = "Send Code"
+        this.subscription.unsubscribe();
+      }
+    }.bind(this));
+    var context = {};
+    context["data"]=this.form.data;					 
+    context["target"] = {"app":"COVID-19 RADAR","key":"phone"};
+    console.log(context);
+    this.fetch(this.passCode.bind(this), '/code/','POST',context);
+    }
+  
+  passCode(data){
+    console.log(data)
+  }
 
   start(){
     if (!this.started && this.id){
       if ((<any>window).cordova){
         this.dir = ".";
-        cordova.plugins.cueaudio.createInstance(this.api_key, this.listenEvent.bind(this), this.error);
+        cordova.plugins.cueaudio.createInstance(this.api_key, this.listenEvent.bind(this), this.err);
         if (this.file.checkFile(cordova.file.externalDataDirectory,"contacts.json")){
           this.file.readAsText(cordova.file.externalDataDirectory,"contacts.json").then((value)=>{
             console.log(value);
@@ -116,7 +171,7 @@ export class HomePage {
         var random = Math.ceil(Math.random() * 10);
         if ((result.seconds + random )%20 == 0){
           console.log(Date());
-          cordova.plugins.cueaudio.input(this.id,this.success,this.error);  
+          cordova.plugins.cueaudio.input(this.id,this.success,this.err);  
           cordova.plugins.cueaudio.enableListening(false);
           this.seconds = result.seconds;
           this.mode = false;
@@ -162,10 +217,11 @@ export class HomePage {
     if (this.phone){
       content["phone"] = this.phone;
     }
+    content["data"]["code"] = this.verify.code;
     if ((<any>window).device && this.url=='add_profile'){
       content["data"]["device"] = (<any>window).device;
     }
-    this.fetch(this.postAction.bind(this),"contacts/" + this.url + "/","POST",content);
+    this.fetch(this.postAction.bind(this),"/contacts/add_profile/","POST",content);
   }
 
   postAction(data){    
@@ -336,6 +392,12 @@ export class HomePage {
     this.fetch(this.postAction.bind(this),"contacts/forms/set_profile/","GET",null);
   }
 
+  onload(){
+
+    this.doc =  this.iframe.nativeElement.contentWindow;
+    console.log(this);
+  }
+
   getData(data){
     if (data.phone == this.phone){
       if (data.contacts){
@@ -357,52 +419,21 @@ export class HomePage {
   }
 
   fetch(cb,url,method,content) {
-    console.log("Base url : " + this.app.baseUrl);
-    url = this.app.baseUrl + url;
-    const req = new XMLHttpRequest();
-    req.open(method,url);
-    req.onload = function(){
-      let parent = this;
-      const data=JSON.parse(req.response,function(key,value){
-        if (value && (typeof value === 'string')){
-          if (value.indexOf("function") === 0) {
-            // we can only pass a function as string in JSON ==> doing a real function
-            var jsFunc = new Function('return ' + value)();
-            return jsFunc;
-          }
-          if (value.indexOf("$this") >=0){
-            return parent;
-          }
-        }
-        return value;
+    var foundMsg = false;
+    var message_id = "";
+    for (let key in this.messages){
+      if (this.messages[key] == cb){
+        foundMsg = true;
+        message_id = key;
       }
-      ); 
-      cb(data);
-    };
-    req.onerror = function(error){
-      console.log(error);
-      this.err = "Connection issue, please retry!"
-    }.bind(this);
-    req.setRequestHeader("Content-Type", "application/json");
-    if (method=='POST'){
-     if (content instanceof FormData ){
-      req.send(content);
-     }else{
-      req.send(JSON.stringify(content));
-     }
-      
-//     this.http.post(url,content).subscribe(cb);
-    }else{
-//      this.http.get(url).subscribe(cb)
-      req.send();
     }
-    
-  }
-
-
-
-  error(err){
-    console.log("error", err);
-  }
+    if (!foundMsg){
+      this.message_id ++;
+      this.messages["message_"+this.message_id] = cb; 
+      message_id =   "message_"+this.message_id;
+    }
+    content = {url:url,method:method,content:content,message_id:message_id}
+    this.doc.postMessage(content,"http://192.168.2.145:8000/");    
+  }  
 
 }

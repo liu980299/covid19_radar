@@ -1,8 +1,8 @@
 {
-  "name": "cordova-plugin-sleeptimer",
+  "name": "covid19_rardar",
   "version": "0.0.1",
-  "author": "Ionic Framework",
-  "homepage": "http://ionicframework.com/",
+  "author": "Xiang Liu",
+  "homepage": "https://www.dinostest.net/",
   "private": true,
   "scripts": {
     "start": "ionic-app-scripts serve",
@@ -77,7 +77,7 @@
         "OKHTTP_VERSION": "3.12.+",
         "EVENTBUS_VERSION": "3.0.0"
       },
-      "cordova-plugin-geolocation": {},
+      "cordova-plugin-geolocation": {}
     },
     "platforms": [
       "android"

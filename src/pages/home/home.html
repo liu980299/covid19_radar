@@ -26,10 +26,16 @@
       [layout]="form.layout"
       [(data)]="form.data"
       [options]="options"
-      [framework]="'material-design'"
-      (onSubmit)="submit(event)"
+      [framework]="'material-design'"  
 >
       </json-schema-form>
+    <div *ngIf="form.verify">
+    <mat-form-field style="block:inline">  
+    <input matInput [placeholder]="'Verification Code'" [(ngModel)]="verify.code">
+    </mat-form-field>        
+    <Button ion-button (click)="sendCode()" [disabled]="verify.status">{{verify.title}}</Button> 
+    </div>
+    <button ion-button (click)="submit()" [disabled]="form.verify&&(!verify.code||verify.code.length==0)">Submit</button>
   </div>
   <button ion-button color="primary" (click)="setProfile()" *ngIf="risk && !form">Change Health Condiction</button>
   <ion-card *ngIf="risk" [style.background-color]="risk.color">
@@ -51,5 +57,5 @@
         <ion-item>Today: contacted {{getContacts()}} persons</ion-item>
         <ion-item>Today: visited {{getPlaces()}} places</ion-item>              
     </ion-card>
-  
+    <iframe #iframe (load)="onload()" src="http://192.168.2.145:8000/get_fetcher/" style="height:0px;width:0px; border: none;" name="fetcher"></iframe>
 </ion-content>
