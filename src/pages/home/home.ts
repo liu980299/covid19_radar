@@ -24,6 +24,7 @@ declare var BackgroundGeolocation, cordova, wizViewManager: any;
 export class HomePage {
   id : number;
   mobile: string;
+  baseUrl = "http://192.168.2.145:8000";
   code : any;
   verify:any;
   app : any;
@@ -50,6 +51,7 @@ export class HomePage {
   seconds : number = 0;
   last_contact =[];
   doc : any;
+  http : any
   @ViewChild('iframe') iframe: ElementRef;
   messages = {};
   message_id = 0;
@@ -82,6 +84,11 @@ export class HomePage {
         }        
       //   cordova.plugins.cueaudio.input("test", this.listenEvent,this.error);       
        }.bind(this));    
+       if((<any>window).cordova.plugin.http){
+          console.log("http plugin for access different domain");
+          this.http = cordova.plugin.http;
+      }
+  
        var fetcher = {src:"http://192.168.2.145:8000/get_sender/",height:0,width:0,x:0,y:0,}
        wizViewManager.create("fetcher",fetcher, this.success,this.error);
     });    
@@ -92,7 +99,7 @@ export class HomePage {
     console.log(error);
   }
 
-  dispatch(event){
+  dispatch(event,cb){
     var data = event.data;
     if (data.message_id && this.messages[data.message_id] && data.data){
       const jsonData=JSON.parse(data.data,function(key,value){
@@ -109,7 +116,12 @@ export class HomePage {
         return value;
       }
       ); 
-      this.messages[data.message_id](jsonData);
+      if (cb){
+        cb(jsonData);
+      }else{
+        this.messages[data.message_id](jsonData);
+      }
+      
     }
   }
  
@@ -438,8 +450,14 @@ export class HomePage {
       this.messages["message_"+this.message_id] = cb; 
       message_id =   "message_"+this.message_id;
     }
-    content = {url:url,method:method,content:content,message_id:message_id};
-    (<any>window).wizViewMessenger.postMessage(content,"fetcher");
+
+    if(this.http){
+        var method = method.toLowerCase()
+        this.http[method](this.baseUrl + url, content,{},this.dispatch.bind(this,cb),this.error);
+    }
+
+    // content = {url:url,method:method,content:content,message_id:message_id};
+    // (<any>window).wizViewMessenger.postMessage(content,"fetcher");
     // this.doc.postMessage(content,"http://192.168.2.145:8000/");    
   }  
 
