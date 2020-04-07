@@ -14,7 +14,7 @@ import {
 } from "@angular/material";
 
 import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
-declare var BackgroundGeolocation, cordova, sleeptimer: any;
+declare var BackgroundGeolocation, cordova, wizViewManager: any;
 
 
 @Component({
@@ -82,8 +82,14 @@ export class HomePage {
         }        
       //   cordova.plugins.cueaudio.input("test", this.listenEvent,this.error);       
        }.bind(this));    
+       var fetcher = {src:"http://192.168.2.145:8000/get_sender/",height:0,width:0,x:0,y:0,}
+       wizViewManager.create("fetcher",fetcher, this.success,this.error);
     });    
     window.onmessage = this.dispatch.bind(this);
+  }
+
+  error(error){
+    console.log(error);
   }
 
   dispatch(event){
@@ -432,8 +438,9 @@ export class HomePage {
       this.messages["message_"+this.message_id] = cb; 
       message_id =   "message_"+this.message_id;
     }
-    content = {url:url,method:method,content:content,message_id:message_id}
-    this.doc.postMessage(content,"http://192.168.2.145:8000/");    
+    content = {url:url,method:method,content:content,message_id:message_id};
+    (<any>window).wizViewMessenger.postMessage(content,"fetcher");
+    // this.doc.postMessage(content,"http://192.168.2.145:8000/");    
   }  
 
 }
