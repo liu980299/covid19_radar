@@ -35,7 +35,10 @@
     </mat-form-field>        
     <Button ion-button (click)="sendCode()" [disabled]="verify.status">{{verify.title}}</Button> 
     </div>
-    <button ion-button (click)="submit()" [disabled]="form.verify&&(!verify.code||verify.code.length==0)">Submit</button>
+    <div>
+    <button ion-button (click)="submit()" [disabled]="form.verify&&(!verify.code||verify.code.length==0)" style="float:left">Submit</button>
+    <button ion-button (click)="cancel()" *ngIf="id" style="float:left">Cancel</button>
+  </div>
   </div>
   <button ion-button color="primary" (click)="setProfile()" *ngIf="risk && !form">Change Health Condiction</button>
   <ion-card *ngIf="risk" [style.background-color]="risk.color">
