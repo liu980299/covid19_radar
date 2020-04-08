@@ -71,8 +71,6 @@ export class MyApp {
   
       var config = {
         heartbeatInterval: 60,
-        url:"http://192.168.2.145:8000/contacts/set_place",
-        extra:{contacts:this.contacts,phone:this.child.phone},
         debug: false, //  enable this hear sounds for background-geolocation life-cycle.
         stopOnTerminate: false, // enable this to clear background location settings when the app terminates
     };

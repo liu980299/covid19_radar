@@ -1,5 +1,5 @@
 {
-  "name": "covid19_rardar",
+  "name": "covid19_radar",
   "version": "0.0.1",
   "author": "Xiang Liu",
   "homepage": "https://www.dinostest.net/",
@@ -40,7 +40,6 @@
     "cordova-plugin-file": "6.0.2",
     "cordova-plugin-geolocation": "4.0.2",
     "cordova-plugin-volume-control": "^0.1.9",
-    "cordova-plugin-wizviewmanager": "git+https://github.com/Wizcorp/cordova-plugin-wizviewmanager.git",
     "device": "0.3.10",
     "ionic-angular": "3.9.9",
     "ionicons": "3.0.0",
@@ -80,7 +79,6 @@
         "EVENTBUS_VERSION": "3.0.0"
       },
       "cordova-plugin-geolocation": {},
-      "cordova-plugin-wizviewmanager": {},
       "cordova-plugin-advanced-http": {
         "OKHTTP_VERSION": "3.10.0"
       }

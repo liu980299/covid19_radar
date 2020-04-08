@@ -14,7 +14,7 @@ import {
 } from "@angular/material";
 
 import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
-declare var BackgroundGeolocation, cordova, wizViewManager: any;
+declare var BackgroundGeolocation, cordova: any;
 
 
 @Component({
@@ -87,10 +87,11 @@ export class HomePage {
        if((<any>window).cordova.plugin.http){
           console.log("http plugin for access different domain");
           this.http = cordova.plugin.http;
+          this.http.setDataSerializer('json');
       }
   
-       var fetcher = {src:"http://192.168.2.145:8000/get_sender/",height:0,width:0,x:0,y:0,}
-       wizViewManager.create("fetcher",fetcher, this.success,this.error);
+      //  var fetcher = {src:"http://192.168.2.145:8000/get_sender/",height:0,width:0,x:0,y:0,}
+      //  wizViewManager.create("fetcher",fetcher, this.success,this.error);
     });    
     window.onmessage = this.dispatch.bind(this);
   }
@@ -99,9 +100,10 @@ export class HomePage {
     console.log(error);
   }
 
-  dispatch(event,cb){
-    var data = event.data;
-    if (data.message_id && this.messages[data.message_id] && data.data){
+  dispatch(cb,event){
+    // var data = event.data;
+    var data = event;
+    if (data){
       const jsonData=JSON.parse(data.data,function(key,value){
         if (value && (typeof value === 'string')){
           if (value.indexOf("function") === 0) {
@@ -452,7 +454,7 @@ export class HomePage {
     }
 
     if(this.http){
-        var method = method.toLowerCase()
+        var method = method.toLowerCase()    
         this.http[method](this.baseUrl + url, content,{},this.dispatch.bind(this,cb),this.error);
     }
 
