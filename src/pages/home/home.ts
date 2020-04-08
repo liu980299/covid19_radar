@@ -29,7 +29,7 @@ export class HomePage {
   verify:any;
   app : any;
   test : string;
-  tick$ = Observable.interval(5000);  
+  tick$ = Observable.interval(1000);  
   subscription : any;
   timeout : 36;
   life : 0;
@@ -41,6 +41,7 @@ export class HomePage {
   options = {"loadExternalAssets":false,addSubmit:false};
   url:string;
   err:any;
+  CSRF_HEADER = "X-CSRFToken";
   places:{};
   api_key = 'EH0GHbslb0pNWAxPf57qA6n23w4Zgu5U';
   dir:string = ".";
@@ -50,6 +51,7 @@ export class HomePage {
   mode : boolean = true;
   seconds : number = 0;
   last_contact =[];
+  secs = 0;
   doc : any;
   http : any
   @ViewChild('iframe') iframe: ElementRef;
@@ -70,24 +72,29 @@ export class HomePage {
         }        
       }        
       this.tick$.subscribe(function(){
-        if (this.id){
-          if (this.spin_show){
-            this.spin_show = false;
-            this.spinner.hide();
+        this.secs++
+        if (this.secs %5 == 0){
+          if (this.id){
+            if (this.spin_show){
+              this.spin_show = false;
+              this.spinner.hide();
+            }else{
+              this.spin_show = true;
+              this.spinner.show();
+            }  
+            this.checkRisk();
           }else{
-            this.spin_show = true;
-            this.spinner.show();
-          }  
-          this.checkRisk();
-        }else{
-          this.spinner.hide();
-        }        
+            this.spinner.hide();
+          }        
+  
+        }
       //   cordova.plugins.cueaudio.input("test", this.listenEvent,this.error);       
        }.bind(this));    
        if((<any>window).cordova.plugin.http){
           console.log("http plugin for access different domain");
           this.http = cordova.plugin.http;
           this.http.setDataSerializer('json');
+          this.http.options(this.baseUrl,null,null,this.setCSRF.bind(this),this.error);
       }
   
       //  var fetcher = {src:"http://192.168.2.145:8000/get_sender/",height:0,width:0,x:0,y:0,}
@@ -96,12 +103,26 @@ export class HomePage {
     window.onmessage = this.dispatch.bind(this);
   }
 
+  setCSRF(){
+    var cookie = this.http.getCookieString(this.baseUrl);
+    var values = cookie.split(";")
+    console.log(values);
+    for (let value of values){
+      var items = value.trim().split("=");
+      if(items[0] == "csrftoken"){
+        this.http.setHeader(this.CSRF_HEADER,items[1]);
+      }
+    }
+  }
+
+
   error(error){
     console.log(error);
   }
 
   dispatch(cb,event){
     // var data = event.data;
+    this.setCSRF();
     var data = event;
     if (data){
       const jsonData=JSON.parse(data.data,function(key,value){
@@ -329,7 +350,7 @@ export class HomePage {
     content["contacts"] = this.contacts;
     content["id"] = this.id;
     content["phone"] = this.phone;
-    this.fetch(this.getData.bind(this),"contacts/update_contacts/","POST",content);
+    this.fetch(this.getData.bind(this),"/contacts/update_contacts/","POST",content);
   }
 
   heartbeatCode(){
@@ -373,7 +394,7 @@ export class HomePage {
     }
     this.last_contact = this.contact_list;
     if (this.contact_list.length > 0){
-      this.fetch(this.updateRisk.bind(this),'contacts/check_risk/','POST',content);
+      this.fetch(this.updateRisk.bind(this),'/contacts/check_risk/','POST',content);
     }    
   }
 
