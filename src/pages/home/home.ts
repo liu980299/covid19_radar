@@ -29,7 +29,7 @@ export class HomePage {
   verify:any;
   app : any;
   test : string;
-  tick$ = Observable.interval(1000);  
+  tick$ = Observable.interval(5000);  
   subscription : any;
   timeout : 36;
   life : 0;
@@ -66,7 +66,7 @@ export class HomePage {
     platform.ready().then(() => {
       if (!this.id){
         if (!this.form){
-          this.fetch(this.postAction.bind(this),"contacts/forms/add_profile/","GET",null);        
+          this.fetch(this.postAction.bind(this),"/contacts/forms/add_profile/","GET",null);        
         }        
       }        
       this.tick$.subscribe(function(){
@@ -244,6 +244,10 @@ export class HomePage {
     this.fetch(this.postAction.bind(this),"/contacts/add_profile/","POST",content);
   }
 
+  cancel(){
+    this.form = null;
+  }
+
   postAction(data){    
     if (!data.error){
       this.form = null;
@@ -409,7 +413,7 @@ export class HomePage {
   }
 
   setProfile(){
-    this.fetch(this.postAction.bind(this),"contacts/forms/set_profile/","GET",null);
+    this.fetch(this.postAction.bind(this),"/contacts/forms/set_profile/","GET",null);
   }
 
   onload(){
@@ -439,20 +443,6 @@ export class HomePage {
   }
 
   fetch(cb,url,method,content) {
-    var foundMsg = false;
-    var message_id = "";
-    for (let key in this.messages){
-      if (this.messages[key] == cb){
-        foundMsg = true;
-        message_id = key;
-      }
-    }
-    if (!foundMsg){
-      this.message_id ++;
-      this.messages["message_"+this.message_id] = cb; 
-      message_id =   "message_"+this.message_id;
-    }
-
     if(this.http){
         var method = method.toLowerCase()    
         this.http[method](this.baseUrl + url, content,{},this.dispatch.bind(this,cb),this.error);
