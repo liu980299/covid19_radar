@@ -320,6 +320,9 @@ export class HomePage {
     }
   }
   decodeId(message){
+    var message = message.trim();
+    var index = message.indexOf("{");
+    message = message.substr(index);
     var data = JSON.parse(message);
     if (data["trigger-as-number"]){
       return data["trigger-as-number"];
