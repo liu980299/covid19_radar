@@ -323,10 +323,29 @@ export class HomePage {
     var message = message.trim();
     var index = message.indexOf("{");
     message = message.substr(index);
-    var data = JSON.parse(message);
-    if (data["trigger-as-number"]){
-      return data["trigger-as-number"];
-    }
+    var data ={}
+    if (message.indexOf(",") < 0){
+      var items = message.split("\n");
+      for (var i = 1; i < items.length - 1; i++){
+        if (items[i].indexOf(":") > 0){
+          let keys=items[i].split(":");
+          if (keys[0].trim() == "triggerAsNumber"){
+            return parseInt(keys[1]);
+          }
+
+        }
+      }
+      // message = items[0] + items.slice(1,items.length - 1).join(",") + items[items.length - 1];
+
+    }else{
+      data = JSON.parse(message);
+    
+    
+      if (data["trigger-as-number"]){
+        return data["trigger-as-number"];
+      }
+  }
+
 
     // if (data["winner-indices"]){
     //   var items = data["winner-indices"].split(".");
