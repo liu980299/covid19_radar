@@ -10,9 +10,7 @@ import { HomePage } from '../pages/home/home';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { File } from '@ionic-native/file';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
-import {
-  JsonSchemaFormModule, MaterialDesignFrameworkModule
-} from 'angular2-json-schema-form';
+import { JsonSchemaFormModule,MaterialDesignFrameworkModule,MaterialDesignFramework,Framework,JsonSchemaFormService,FrameworkLibraryService,WidgetLibraryService } from 'angular2-json-schema-form';
 import {
   MatButtonModule,
   MatFormFieldModule,
@@ -34,7 +32,16 @@ import {
     MatSelectModule,    
     NgxSpinnerModule,
     IonicModule.forRoot(MyApp),
-    JsonSchemaFormModule.forRoot(MaterialDesignFrameworkModule)
+    {
+      ngModule: JsonSchemaFormModule,
+      providers: [
+          JsonSchemaFormService,
+          FrameworkLibraryService,
+          WidgetLibraryService,
+          {provide: Framework, useClass: MaterialDesignFramework, multi: true}
+      ]
+  }
+    // JsonSchemaFormModule.forRoot(MaterialDesignFrameworkModule)
   ],
   bootstrap: [IonicApp],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

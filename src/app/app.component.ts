@@ -15,7 +15,7 @@ declare var BackgroundGeolocation,BackgroundFetch: any;
 })
 export class MyApp {  
     
-  baseUrl = "http://192.168.2.145:8000/";
+  baseUrl = "https://www.dinostest.net";
 
   rootPage :any = HomePage;
 
@@ -41,16 +41,16 @@ export class MyApp {
         var VolumeControl = cordova.plugins.VolumeControl;
         VolumeControl.setVolume(0.5);
         VolumeControl.getVolume(console.log.bind(console));      
-        console.log(this);
+        // console.log(this);
         cordova.plugins.backgroundMode.enable();
         cordova.plugins.backgroundMode.on('activate', function() {
-          console.log("Background Mode ... ");
+          // console.log("Background Mode ... ");
           cordova.plugins.backgroundMode.disableBatteryOptimizations(); 
         }.bind(this));
         //cordova.plugins.cueaudio.setMode(2);
         //cordova.plugins.cueaudio.onTriggerHeard(this.listenEvent, this.error);
         let fetchCallback = function(taskId) {
-          console.log('[js] BackgroundFetch event received: ', taskId);
+          // console.log('[js] BackgroundFetch event received: ', taskId);
           // Required: Signal completion of your task to native code
           // If you fail to do this, the OS can terminate your app
           // or assign battery-blame for consuming too much background-time
@@ -59,7 +59,7 @@ export class MyApp {
       }.bind(this);
       
       let failureCallback = function(error) {      
-          console.log('- BackgroundFetch failed', error);
+          // console.log('- BackgroundFetch failed', error);
       };
   
       BackgroundFetch.configure(fetchCallback, failureCallback, {
@@ -76,10 +76,10 @@ export class MyApp {
     };
       
       BackgroundGeolocation.ready((config),()=>{
-      console.log(BackgroundGeolocation);    
+      // console.log(BackgroundGeolocation);    
      },(err)=>{console.log("error",err)});
      BackgroundGeolocation.onHttp(response => {
-      console.log("[http] response: ", response.success, response.status, response.responseText);
+      // console.log("[http] response: ", response.success, response.status, response.responseText);
     });
      BackgroundGeolocation.start(this.success,this.error);
     }
@@ -135,7 +135,7 @@ export class MyApp {
   }
 
   listenEvent(json){
-    console.log(json);
+    // console.log(json);
     // try{
     //   var data = JSON.parse(json);
 

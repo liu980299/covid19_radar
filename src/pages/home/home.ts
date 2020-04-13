@@ -24,7 +24,7 @@ declare var BackgroundGeolocation, cordova: any;
 export class HomePage {
   id : number;
   mobile: string;
-  baseUrl = "http://192.168.2.145:8000";
+  baseUrl = "https://www.dinostest.net";
   code : any;
   verify:any;
   app : any;
@@ -53,7 +53,8 @@ export class HomePage {
   last_contact =[];
   secs = 0;
   doc : any;
-  http : any
+  http : any;
+  risk : any;
   @ViewChild('iframe') iframe: ElementRef;
   messages = {};
   message_id = 0;
@@ -91,7 +92,7 @@ export class HomePage {
       //   cordova.plugins.cueaudio.input("test", this.listenEvent,this.error);       
        }.bind(this));    
        if((<any>window).cordova.plugin.http){
-          console.log("http plugin for access different domain");
+          // console.log("http plugin for access different domain");
           this.http = cordova.plugin.http;
           this.http.setDataSerializer('json');
           this.http.options(this.baseUrl,null,null,this.setCSRF.bind(this),this.error);
@@ -106,7 +107,7 @@ export class HomePage {
   setCSRF(){
     var cookie = this.http.getCookieString(this.baseUrl);
     var values = cookie.split(";")
-    console.log(values);
+    // console.log(values);
     for (let value of values){
       var items = value.trim().split("=");
       if(items[0] == "csrftoken"){
@@ -117,7 +118,7 @@ export class HomePage {
 
 
   error(error){
-    console.log(error);
+    // console.log(error);
   }
 
   dispatch(cb,event){
@@ -187,12 +188,12 @@ export class HomePage {
     var context = {};
     context["data"]=this.form.data;					 
     context["target"] = {"app":"COVID-19 RADAR","key":"phone"};
-    console.log(context);
+    // console.log(context);
     this.fetch(this.passCode.bind(this), '/code/','POST',context);
     }
   
   passCode(data){
-    console.log(data)
+    // console.log(data)
   }
 
   start(){
@@ -202,7 +203,7 @@ export class HomePage {
         cordova.plugins.cueaudio.createInstance(this.api_key, this.listenEvent.bind(this), this.err);
         if (this.file.checkFile(cordova.file.externalDataDirectory,"contacts.json")){
           this.file.readAsText(cordova.file.externalDataDirectory,"contacts.json").then((value)=>{
-            console.log(value);
+            // console.log(value);
             let contacts = JSON.parse(value);
             this.contacts = contacts;
           });                  
@@ -211,14 +212,14 @@ export class HomePage {
       cordova.plugins.cueaudio.timer((result)=>{
         var random = Math.ceil(Math.random() * 10);
         if ((result.seconds + random )%20 == 0){
-          console.log(Date());
+          // console.log(Date());
           cordova.plugins.cueaudio.input(this.id,this.success,this.err);  
-          cordova.plugins.cueaudio.enableListening(false);
+          // cordova.plugins.cueaudio.enableListening(false);
           this.seconds = result.seconds;
           this.mode = false;
         }else{
           if (result.seconds >= this.seconds + 3 && (!this.mode)){
-            cordova.plugins.cueaudio.enableListening(true);
+            // cordova.plugins.cueaudio.enableListening(true);
             this.mode = true;
           }
         }
@@ -230,7 +231,7 @@ export class HomePage {
         if (this.life > this.timeout){
           this.app.backgroundMode.moveToForeground();
           this.presentAlert();
-          console.log(navigator);
+          // console.log(navigator);
           //navigator['app'].exitApp();        
         }
         // this.update++;
@@ -272,8 +273,10 @@ export class HomePage {
   postAction(data){    
     if (!data.error){
       this.form = null;
-      Object.assign(this,data);
-      console.log(this);
+      for (let key in data){
+        this[key] = data[key];
+      }
+      // console.log(this);
       if (this.form){
         if (!this.form.data){
           this.form.data = {};
@@ -383,10 +386,6 @@ export class HomePage {
 
       // }
   
-    for (var i = 0; i<12; i++){
-      var timeout = i * 5;
-      console.log("timeout : " + timeout);     
-   }        
   }
 
 
@@ -409,14 +408,14 @@ export class HomePage {
 
   }
   success(message){
-    console.log(message);
+    // console.log(message);
   }
   listenEvent(data){    
-    console.log(Date());
-    console.log(data);
+    // console.log(Date());
+    // console.log(data);
     
     var id = this.decodeId(data);
-    console.log("id : " + id);
+    // console.log("id : " + id);
     if (id == this.id){
       this.life = 0;
     }else{
@@ -443,7 +442,7 @@ export class HomePage {
   onload(){
 
     this.doc =  this.iframe.nativeElement.contentWindow;
-    console.log(this);
+    // console.log(this);
   }
 
   getData(data){
@@ -463,13 +462,18 @@ export class HomePage {
           }
         }
       }
+      if (data.risk){
+        this.risk = data.risk;
+      }
     }
   }
 
   fetch(cb,url,method,content) {
     if(this.http){
-        var method = method.toLowerCase()    
-        this.http[method](this.baseUrl + url, content,{},this.dispatch.bind(this,cb),this.error);
+      var headers = {Referer:this.baseUrl};
+
+      var method = method.toLowerCase()    
+      this.http[method](this.baseUrl + url, content,headers,this.dispatch.bind(this,cb),this.error);
     }
 
     // content = {url:url,method:method,content:content,message_id:message_id};
